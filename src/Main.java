@@ -1,13 +1,13 @@
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.common.collect.Lists;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.google.api.services.youtube.YouTube;
+import com.opencsv.CSVReader;
 
 import javax.swing.*;
 
@@ -19,19 +19,40 @@ public class Main {
     public static YouTube youtube = null;
     public static CountDownLatch cdl = null;
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
         Scanner in = new Scanner(System.in);
         disableLogging();
         System.out.println("Checking authentication...");
         authorization();
-        List<Video> arr = MyUploads.run();
+        System.out.println("\nSelect your YouTube CSV file.");
+        String folder = getFolder(true);
+        if(folder == null) {
+            System.out.println("\nNo selection made. Quitting.");
+            System.exit(0);
+        }
+        System.out.println(folder);
+
+        List<Video> arr = new ArrayList<>();
+        FileReader fin = new FileReader(folder);
+        CSVReader csvReader = new CSVReader(fin);
+        String[] row = null;
+        boolean first = true;
+        while((row = csvReader.readNext()) != null) {
+            if(!first) {
+                Video vid = new Video(row[1], row[0]);
+                arr.add(vid);
+            } else {
+                first = false;
+            }
+        }
+        csvReader.close();
         HashMap<String, Video> videoHash = new HashMap<>();
         for(Video v : arr){
             videoHash.put(v.getTitle(), v);
         }
         System.out.println("\nNow you must select the source folder for your image(s).");
         System.out.println("I will find all jpeg files in this folder and all its subfolders.");
-        String folder = getFolder();
+        folder = getFolder(false);
         if(folder == null) {
             System.out.println("\nNo selection made. Quitting.");
             System.exit(0);
@@ -101,9 +122,9 @@ public class Main {
         logger.setLevel(Level.SEVERE);
     }
 
-    private static String getFolder() {
+    private static String getFolder(boolean fileChooser) {
         JFrame frame = new JFrame("");
-        FolderChooser panel = new FolderChooser();
+        FolderChooser panel = new FolderChooser(fileChooser);
         cdl = new CountDownLatch(1);
         panel.show();
         return panel.getResult();

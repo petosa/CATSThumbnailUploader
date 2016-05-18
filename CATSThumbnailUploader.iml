@@ -11,5 +11,6 @@
     <orderEntry type="library" name="com.google.common.html.types:types:1.0.1" level="project" />
     <orderEntry type="library" name="com.google.apis:google-api-services-youtube:v3-rev136-1.20.0" level="project" />
     <orderEntry type="library" name="com.google.oauth-client:google-oauth-client-jetty:1.22.0" level="project" />
+    <orderEntry type="library" name="com.opencsv:opencsv:3.7" level="project" />
   </component>
 </module>
